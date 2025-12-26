@@ -21,7 +21,6 @@
             --text: #ffffff;
             --label-text: #cccccc;
             --border: #444;
-            /* SAFE AREA CONSTANTS */
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
             --safe-left: env(safe-area-inset-left);
@@ -42,7 +41,6 @@
             background-color: var(--bg); color: var(--text);
             margin: 0; padding: 0; overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
-            /* Prevents content from being hidden behind side notches in landscape */
             padding-left: var(--safe-left);
             padding-right: var(--safe-right);
         }
@@ -51,7 +49,6 @@
 
         header {
             background: var(--card);
-            /* Padding adjustment for Status Bar / Dynamic Island */
             padding: calc(15px + var(--safe-top)) 15px 15px 15px;
             display: flex; align-items: center; justify-content: space-between;
             border-bottom: 2px solid var(--gold);
@@ -62,7 +59,6 @@
 
         .container {
             padding: 20px; max-width: 450px; margin: auto; width: 100%; box-sizing: border-box;
-            /* Padding adjustment for Home Bar (Bottom Indicator) */
             padding-bottom: calc(100px + var(--safe-bottom));
         }
 
@@ -103,6 +99,12 @@
         .theme-toggle { font-size: 1.5rem; cursor: pointer; color: var(--gold); padding: 5px 10px; border-radius: 8px; background: var(--input-bg); }
         
         .btn-master-reset { color: #ff4444 !important; font-weight: bold; border-top: 2px solid var(--border); margin-top: 20px; }
+
+        /* REFERENCE TABLE STYLES */
+        .ref-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
+        .ref-table th { text-align: left; color: var(--gold); border-bottom: 1px solid var(--border); padding: 8px; }
+        .ref-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--label-text); }
+        .ref-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
 <body data-theme="dark">
@@ -209,6 +211,25 @@
                     <div id="p-res-val" class="main-ans">0.00</div>
                     <div id="p-res-detail" style="margin-top:10px; font-size:1.1rem;">-</div>
                 </div>
+
+                <div class="card" style="margin-top:20px;">
+                    <h3 style="color:var(--gold); margin:0 0 10px 0; font-size: 1.1rem;">ကိုးကားဇယား (Reference)</h3>
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th>ပဲရည် (Purity)</th>
+                                <th>Density (စက်ပွိုင့်)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>၁၆ ပဲရည် (Academy)</td><td>19.32</td></tr>
+                            <tr><td>၁၅ ပဲ ၂ ရွေး (95%)</td><td>18.52</td></tr>
+                            <tr><td>၁၅ ပဲရည် (93.75%)</td><td>18.21</td></tr>
+                            <tr><td>၁၄ ပဲ ၂ ရွေး (90%)</td><td>17.43</td></tr>
+                            <tr><td>၁၄ ပဲရည် (87.5%)</td><td>17.11</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div id="diamond-calc-view" class="hidden">
@@ -313,6 +334,7 @@
     </div>
 
     <script>
+        // --- ALL ORIGINAL LOGIC RETAINED ---
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
@@ -523,21 +545,15 @@
             }
         }
 
-        // --- RESET FUNCTIONS ---
-
-        // Added Master Reset function
         function resetAllData() {
             if (confirm("ဒေတာအားလုံးကို ဖျက်ပစ်ရန် သေချာပါသလား?")) {
                 document.querySelectorAll('input').forEach(i => i.value = "");
                 localStorage.clear();
-                
-                // Clear UI labels
                 if(document.getElementById('uDisplay')) document.getElementById('uDisplay').innerText = "၀ ကျပ် ၀ ပဲ ၀ ရွေး";
                 if(document.getElementById('uSubDisplay')) document.getElementById('uSubDisplay').innerText = "(0.0000 ကျပ်) | 0.000 g";
                 if(document.getElementById('netDisplay')) document.getElementById('netDisplay').innerText = "၀ ကျပ် ၀ ပဲ ၀ ရွေး";
                 if(document.getElementById('netSubDisplay')) document.getElementById('netSubDisplay').innerText = "(0.0000 ကျပ်)";
                 if(document.getElementById('purity-result')) document.getElementById('purity-result').classList.add('hidden');
-                
                 updateEquivPrice();
                 closeNav();
                 alert("ဒေတာအားလုံးကို ဖျက်ပြီးပါပြီ။");
