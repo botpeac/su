@@ -92,6 +92,11 @@
         .hidden { display: none; }
         
         .highlight-box { background: rgba(252, 193, 3, 0.1); border: 2px solid var(--gold); padding: 20px; border-radius: 15px; text-align: center; margin-top: 10px; }
+        
+        /* Reference Box Style */
+        .ref-box { background: rgba(255, 255, 255, 0.05); border: 1px dashed var(--gold); padding: 15px; border-radius: 12px; margin-top: 15px; font-size: 0.9rem; line-height: 1.6; color: var(--label-text); }
+        .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; border-top: 1px solid #444; padding-top: 8px; }
+        
         .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 1.2rem; }
         .val-highlight { color: var(--gold); font-weight: bold; }
         .total-row { color: var(--gold); font-weight: bold; font-size: 1.8rem; margin-top: 15px; background: rgba(252, 193, 3, 0.15); padding: 15px; border-radius: 10px; text-align: center; }
@@ -99,12 +104,6 @@
         .theme-toggle { font-size: 1.5rem; cursor: pointer; color: var(--gold); padding: 5px 10px; border-radius: 8px; background: var(--input-bg); }
         
         .btn-master-reset { color: #ff4444 !important; font-weight: bold; border-top: 2px solid var(--border); margin-top: 20px; }
-
-        /* REFERENCE TABLE STYLES */
-        .ref-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.95rem; }
-        .ref-table th { text-align: left; color: var(--gold); border-bottom: 1px solid var(--border); padding: 8px; }
-        .ref-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--label-text); }
-        .ref-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
 <body data-theme="dark">
@@ -167,7 +166,18 @@
                     <button id="tab-yield" class="tab" onclick="switchPurityTab('yield')">အသားတင်ထွက်နှုန်း</button>
                 </div>
 
-                <div id="purity-sub-view">
+                <div class="ref-box">
+                    <strong>💡 Density အညွှန်းကိန်းများ</strong><br>
+                    ၁၆ပဲရည် ရွှေတစ်ကျပ်သားတွင် <b>19.25</b> Density ရှိပြီး ၁၅ပဲရည်သည် <b>17.8</b> Density ဖြစ်ပါသည်။
+                    <div class="ref-grid">
+                        <span>၁၄ ပဲရည် ≈ 16.84</span>
+                        <span>၁၃ ပဲရည် ≈ 15.64</span>
+                        <span>၁၂ ပဲရည် ≈ 14.43</span>
+                        <span>၁၁ ပဲရည် ≈ 13.23</span>
+                    </div>
+                </div>
+
+                <div id="purity-sub-view" style="margin-top:20px;">
                     <div class="card">
                         <label>အထည်ပျက် အလေးချိန်</label>
                         <div class="grid-3">
@@ -187,7 +197,7 @@
                     <button class="btn-main" onclick="calcPurity()">တွက်မည်</button>
                 </div>
 
-                <div id="yield-sub-view" class="hidden">
+                <div id="yield-sub-view" class="hidden" style="margin-top:20px;">
                     <div class="card">
                         <label>အထည်ပျက် အလေးချိန်</label>
                         <div class="grid-3">
@@ -210,25 +220,6 @@
                     <label id="p-res-label" style="color:var(--gold);">ရလဒ်</label>
                     <div id="p-res-val" class="main-ans">0.00</div>
                     <div id="p-res-detail" style="margin-top:10px; font-size:1.1rem;">-</div>
-                </div>
-
-                <div class="card" style="margin-top:20px;">
-                    <h3 style="color:var(--gold); margin:0 0 10px 0; font-size: 1.1rem;">ကိုးကားဇယား (Reference)</h3>
-                    <table class="ref-table">
-                        <thead>
-                            <tr>
-                                <th>ပဲရည် (Purity)</th>
-                                <th>Density (စက်ပွိုင့်)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>၁၆ ပဲရည် (Academy)</td><td>19.32</td></tr>
-                            <tr><td>၁၅ ပဲ ၂ ရွေး (95%)</td><td>18.52</td></tr>
-                            <tr><td>၁၅ ပဲရည် (93.75%)</td><td>18.21</td></tr>
-                            <tr><td>၁၄ ပဲ ၂ ရွေး (90%)</td><td>17.43</td></tr>
-                            <tr><td>၁၄ ပဲရည် (87.5%)</td><td>17.11</td></tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
@@ -334,7 +325,6 @@
     </div>
 
     <script>
-        // --- ALL ORIGINAL LOGIC RETAINED ---
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
@@ -427,6 +417,7 @@
             let den = parseFloat(document.getElementById('y-den').value);
             let pe = parseFloat(document.getElementById('y-pe').value);
             let resultKyat = 0;
+            // Calculations using industry density ratios
             if(den > 0) resultKyat = (den / 19.32) * raw;
             else if(pe > 0) resultKyat = (pe / 16) * raw;
             else return alert("Density (သို့မဟုတ်) ပဲရည် တစ်ခုခုထည့်ပါ။");
@@ -526,13 +517,36 @@
 
         function convertUnits(source) {
             const factor = parseFloat(document.getElementById('standard').value);
-            let kyatDec = (source === 'grams') ? (parseFloat(document.getElementById('gramsInput').value) || 0) / factor : toDecimal(document.getElementById('uKyat').value, document.getElementById('uPe').value, document.getElementById('uYway').value);
+            let kyatDec = 0;
+
+            if (source === 'grams') {
+                kyatDec = (parseFloat(document.getElementById('gramsInput').value) || 0) / factor;
+            } else {
+                // Get values and convert to decimal first
+                kyatDec = toDecimal(document.getElementById('uKyat').value, document.getElementById('uPe').value, document.getElementById('uYway').value);
+            }
+
+            // AUTO-CORRECTION: Normalize the units (e.g., 18 pe becomes 1 kyat 2 pe)
+            if (source === 'units') {
+                let parts = fromDecimal(kyatDec).match(/\d+(\.\d+)?/g);
+                document.getElementById('uKyat').value = parts[0];
+                document.getElementById('uPe').value = parts[1];
+                document.getElementById('uYway').value = parts[2];
+            } else if (source === 'grams') {
+                 let parts = fromDecimal(kyatDec).match(/\d+(\.\d+)?/g);
+                document.getElementById('uKyat').value = parts[0];
+                document.getElementById('uPe').value = parts[1];
+                document.getElementById('uYway').value = parts[2];
+            }
+
+            // Update UI Display Labels
             document.getElementById('uDisplay').innerText = fromDecimal(kyatDec);
             document.getElementById('uSubDisplay').innerText = `(${kyatDec.toFixed(4)} ကျပ်) | ${(kyatDec * factor).toFixed(3)} g`;
-            if (source === 'grams') {
-                let parts = fromDecimal(kyatDec).match(/\d+(\.\d+)?/g);
-                document.getElementById('uKyat').value = parts[0]; document.getElementById('uPe').value = parts[1]; document.getElementById('uYway').value = parts[2];
-            } else document.getElementById('gramsInput').value = (kyatDec * factor).toFixed(3);
+            
+            // Sync grams if source was units
+            if (source !== 'grams') {
+                document.getElementById('gramsInput').value = (kyatDec * factor).toFixed(3);
+            }
         }
 
         function convertDiamondUnits(mode) {
