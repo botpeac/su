@@ -21,6 +21,7 @@
             --text: #ffffff;
             --label-text: #cccccc;
             --border: #444;
+            /* SAFE AREA CONSTANTS */
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
             --safe-left: env(safe-area-inset-left);
@@ -41,6 +42,7 @@
             background-color: var(--bg); color: var(--text);
             margin: 0; padding: 0; overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
+            /* Prevents content from being hidden behind side notches in landscape */
             padding-left: var(--safe-left);
             padding-right: var(--safe-right);
         }
@@ -49,6 +51,7 @@
 
         header {
             background: var(--card);
+            /* Padding adjustment for Status Bar / Dynamic Island */
             padding: calc(15px + var(--safe-top)) 15px 15px 15px;
             display: flex; align-items: center; justify-content: space-between;
             border-bottom: 2px solid var(--gold);
@@ -59,6 +62,7 @@
 
         .container {
             padding: 20px; max-width: 450px; margin: auto; width: 100%; box-sizing: border-box;
+            /* Padding adjustment for Home Bar (Bottom Indicator) */
             padding-bottom: calc(100px + var(--safe-bottom));
         }
 
@@ -82,6 +86,10 @@
         .btn-diamond { background: var(--diamond); }
         .btn-reset { width: 100%; padding: 15px; background: transparent; color: #ff6666; border: 2px solid #ff6666; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1.1rem; }
 
+        .tab-container { display: flex; margin-bottom: 20px; gap: 10px; }
+        .tab { flex: 1; padding: 12px; border: 2px solid var(--border); background: var(--input-bg); color: var(--text); cursor: pointer; border-radius: 10px; font-weight: bold; transition: 0.3s; }
+        .tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
+
         .sidebar { height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; left: 0; background-color: var(--card); overflow-x: hidden; transition: 0.3s; padding-top: calc(60px + var(--safe-top)); }
         .sidebar a { padding: 15px 25px; text-decoration: none; font-size: 1.3rem; color: var(--text); display: block; border-bottom: 1px solid var(--border); }
         .overlay { display: none; position: fixed; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; top:0; left:0; }
@@ -89,11 +97,15 @@
         
         .highlight-box { background: rgba(252, 193, 3, 0.1); border: 2px solid var(--gold); padding: 20px; border-radius: 15px; text-align: center; margin-top: 10px; }
         .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 1.2rem; }
+        .val-highlight { color: var(--gold); font-weight: bold; }
         .total-row { color: var(--gold); font-weight: bold; font-size: 1.8rem; margin-top: 15px; background: rgba(252, 193, 3, 0.15); padding: 15px; border-radius: 10px; text-align: center; }
         .main-ans { font-size: 2rem; font-weight: bold; color: var(--gold); line-height: 1.2; }
         .theme-toggle { font-size: 1.5rem; cursor: pointer; color: var(--gold); padding: 5px 10px; border-radius: 8px; background: var(--input-bg); }
         
         .btn-master-reset { color: #ff4444 !important; font-weight: bold; border-top: 2px solid var(--border); margin-top: 20px; }
+
+        .ref-box { border: 1px dashed var(--gold); padding: 15px; border-radius: 10px; margin-bottom: 20px; background: rgba(252, 193, 3, 0.05); }
+        .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; font-size: 0.95rem; }
     </style>
 </head>
 <body data-theme="dark">
@@ -122,7 +134,10 @@
         <div class="container">
             <div id="price-calc-view">
                 <h2>ရွှေဈေးနှုန်း</h2>
-                <div class="card"><label>ယနေ့ပေါက်ဈေး (ကျပ်)</label><input type="number" id="GoldPrice" inputmode="numeric" placeholder="ဈေးနှုန်းထည့်ပါ..."></div>
+                <div class="card">
+                    <label>ယနေ့ပေါက်ဈေး (ကျပ်)</label>
+                    <input type="number" id="GoldPrice" inputmode="numeric" placeholder="ဈေးနှုန်းထည့်ပါ...">
+                </div>
                 <h2>ရွှေအလေးချိန်</h2>
                 <div class="card grid-3">
                     <div class="input-group"><label>ကျပ်</label><input type="number" id="PKat" inputmode="numeric"></div>
@@ -135,70 +150,76 @@
                     <div class="input-group"><label>ပဲ</label><input type="number" id="RPae" inputmode="numeric"></div>
                     <div class="input-group"><label>ရွေး</label><input type="number" id="RYway" inputmode="decimal"></div>
                 </div>
-                <h2>လက်ခ နှင့် ကျောက်ဖိုး</h2>
+                <h2>လက်ခ နှင့် ကျောက်ဖိုး</h2>
                 <div class="card">
-                    <label>လက်ခ (ကျပ်)</label><input type="number" id="Smith" inputmode="numeric" style="margin-bottom:15px;">
-                    <label>ကျောက်ဖိုး (ကျပ်)</label><input type="number" id="StonePrice" inputmode="numeric">
+                    <label>လက်ခ (ကျပ်)</label>
+                    <input type="number" id="Smith" inputmode="numeric" style="margin-bottom:15px;">
+                    <label>ကျောက်ဖိုး (ကျပ်)</label>
+                    <input type="number" id="StonePrice" inputmode="numeric">
                 </div>
                 <button class="btn-main" onclick="calculatePrice()">တွက်ချက်မည်</button>
                 <button class="btn-reset" onclick="resetCalculator()">အကုန်ဖျက်မည် (RESET)</button>
             </div>
 
-            <div id="unit-converter-view" class="hidden">
-                <h2>ယူနစ် ပြောင်းလဲခြင်း</h2>
-                <div class="card">
-                    <label>ဂရမ် (Grams)</label>
-                    <input type="number" id="gramsInput" inputmode="decimal" placeholder="ဂရမ် ရိုက်ထည့်ပါ..." oninput="convertUnits('grams')">
-                    
-                    <div style="margin-top: 20px;">
-                        <label>ကျပ် / ပဲ / ရွေး (Auto-Correcting)</label>
-                        <div class="grid-3">
-                            <div class="input-group"><label>ကျပ်</label><input type="number" id="uKyat" inputmode="numeric" oninput="convertUnits('units')"></div>
-                            <div class="input-group"><label>ပဲ</label><input type="number" id="uPe" inputmode="numeric" oninput="convertUnits('units')"></div>
-                            <div class="input-group"><label>ရွေး</label><input type="number" id="uYway" inputmode="decimal" oninput="convertUnits('units')"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 15px;">
-                        <label>စံသတ်မှတ်ချက်</label>
-                        <select id="standard" onchange="convertUnits('units')">
-                            <option value="16.329325">ရွှေ: Official (16.3293g)</option>
-                            <option value="16.606">ရွှေ: Traditional (16.606g)</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="highlight-box">
-                    <label style="color:var(--gold); text-align:center;">ရွှေအလေးချိန် ရလဒ်</label>
-                    <div id="uDisplay" class="main-ans">၀ ကျပ် ၀ ပဲ ၀ ရွေး</div>
-                    <div id="uSubDisplay" style="color:var(--text); font-size:1.1rem; margin-top:10px;">(0.0000 ကျပ်) | 0.000 g</div>
-                </div>
-                <button class="btn-reset" onclick="resetConverter()">RESET</button>
-            </div>
-
             <div id="purity-calc-view" class="hidden">
                 <h2>အခေါက်ချွတ်တွက်စက်</h2>
-                <div class="card">
-                    <label>အထည်ပျက် အလေးချိန်</label>
-                    <div class="grid-3">
-                        <div class="input-group"><label>ကျပ်</label><input type="number" id="p1-k" inputmode="numeric"></div>
-                        <div class="input-group"><label>ပဲ</label><input type="number" id="p1-p" inputmode="numeric"></div>
-                        <div class="input-group"><label>ရွေး</label><input type="number" id="p1-y" inputmode="decimal"></div>
+                
+                <div class="ref-box">
+                    <div style="font-weight: bold; color: var(--gold); text-align: center; margin-bottom: 8px;">Density သတ်မှတ်ချက်</div>
+                    <div class="ref-grid">
+                        <div style="border-right: 1px solid var(--border);">၁၆ ပဲရည် (အခေါက်) <br> <b style="color:var(--gold)">19.25</b></div>
+                        <div>၁၅ ပဲရည် <br> <b style="color:var(--gold)">17.80</b></div>
                     </div>
                 </div>
-                <div class="card">
-                    <label>ချွတ်ပြီးရရှိသော အခေါက်ရွှေ</label>
-                    <div class="grid-3">
-                        <div class="input-group"><label>ကျပ်</label><input type="number" id="p2-k" inputmode="numeric"></div>
-                        <div class="input-group"><label>ပဲ</label><input type="number" id="p2-p" inputmode="numeric"></div>
-                        <div class="input-group"><label>ရွေး</label><input type="number" id="p2-y" inputmode="decimal"></div>
-                    </div>
+
+                <div class="tab-container">
+                    <button id="tab-purity" class="tab active" onclick="switchPurityTab('purity')">အရည်အသွေးတွက်</button>
+                    <button id="tab-yield" class="tab" onclick="switchPurityTab('yield')">အသားတင်ထွက်နှုန်း</button>
                 </div>
-                <button class="btn-main" onclick="calcPurity()">တွက်မည်</button>
-                <div id="purity-result" class="highlight-box hidden">
-                    <label style="color:var(--gold);">ရလဒ်</label>
+
+                <div id="purity-sub-view">
+                    <div class="card">
+                        <label>အထည်ပျက် အလေးချိန်</label>
+                        <div class="grid-3">
+                            <div class="input-group"><label>ကျပ်</label><input type="number" id="p1-k" inputmode="numeric"></div>
+                            <div class="input-group"><label>ပဲ</label><input type="number" id="p1-p" inputmode="numeric"></div>
+                            <div class="input-group"><label>ရွေး</label><input type="number" id="p1-y" inputmode="decimal"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <label>ချွတ်ပြီးရရှိသော အခေါက်ရွှေ</label>
+                        <div class="grid-3">
+                            <div class="input-group"><label>ကျပ်</label><input type="number" id="p2-k" inputmode="numeric"></div>
+                            <div class="input-group"><label>ပဲ</label><input type="number" id="p2-p" inputmode="numeric"></div>
+                            <div class="input-group"><label>ရွေး</label><input type="number" id="p2-y" inputmode="decimal"></div>
+                        </div>
+                    </div>
+                    <button class="btn-main" onclick="calcPurity()">တွက်မည်</button>
+                </div>
+
+                <div id="yield-sub-view" class="hidden">
+                    <div class="card">
+                        <label>အထည်ပျက် အလေးချိန်</label>
+                        <div class="grid-3">
+                            <div class="input-group"><label>ကျပ်</label><input type="number" id="y1-k" inputmode="numeric"></div>
+                            <div class="input-group"><label>ပဲ</label><input type="number" id="y1-p" inputmode="numeric"></div>
+                            <div class="input-group"><label>ရွေး</label><input type="number" id="y1-y" inputmode="decimal"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <label>Density (စက်ပွိုင့်)</label>
+                        <input type="number" id="y-den" placeholder="ဥပမာ- 17.8" step="0.01" style="margin-bottom:15px;">
+                        <p style="text-align: center; margin: 10px 0; font-weight:bold;">- (သို့မဟုတ်) -</p>
+                        <label>ပဲရည် သိလျှင်ရိုက်ထည့်ပါ</label>
+                        <input type="number" id="y-pe" placeholder="ဥပမာ- 15">
+                    </div>
+                    <button class="btn-main" onclick="calcYield()">ထွက်နှုန်းတွက်မည်</button>
+                </div>
+
+                <div id="purity-result" class="highlight-box hidden" style="margin-top:20px;">
+                    <label id="p-res-label" style="color:var(--gold);">ရလဒ်</label>
                     <div id="p-res-val" class="main-ans">0.00</div>
-                    <div id="p-res-detail" style="margin-top:10px;">-</div>
+                    <div id="p-res-detail" style="margin-top:10px; font-size:1.1rem;">-</div>
                 </div>
             </div>
 
@@ -228,8 +249,47 @@
                         </div>
                     </div>
                 </div>
+
                 <button class="btn-main btn-diamond" onclick="calculateDiamondPrice()">တွက်ချက်မည်</button>
                 <button class="btn-reset" onclick="resetDiamond()">RESET</button>
+            </div>
+
+            <div id="unit-converter-view" class="hidden">
+                <h2>ယူနစ် ပြောင်းလဲခြင်း</h2>
+                <div class="card">
+                    <label>ဂရမ် (Grams)</label>
+                    <input type="number" id="gramsInput" inputmode="decimal" placeholder="ဂရမ် ရိုက်ထည့်ပါ...">
+                    <div class="grid-3" style="margin:20px 0;">
+                        <div class="input-group"><label>ကျပ်</label><input type="number" id="uKyat" inputmode="numeric"></div>
+                        <div class="input-group"><label>ပဲ</label><input type="number" id="uPe" inputmode="numeric"></div>
+                        <div class="input-group"><label>ရွေး</label><input type="number" id="uYway" inputmode="decimal"></div>
+                    </div>
+                    <select id="standard" onchange="convertUnits('grams')">
+                        <option value="16.329325">ရွှေ: Official (16.3293g)</option>
+                        <option value="16.606">ရွှေ: Traditional (16.606g)</option>
+                    </select>
+                </div>
+                
+                <div class="card" style="border-color: var(--diamond);">
+                    <label style="color:var(--diamond);">စိန် / ရတနာ (Carat to Gram)</label>
+                    <div class="grid-3">
+                        <div style="grid-column: span 2;">
+                            <label>ကာရက် (Ct)</label>
+                            <input type="number" id="convCt" inputmode="decimal" oninput="convertDiamondUnits('ct')">
+                        </div>
+                        <div>
+                            <label>ဂရမ် (g)</label>
+                            <input type="number" id="convGm" inputmode="decimal" oninput="convertDiamondUnits('gm')">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <label style="color:var(--gold); text-align:center;">ရွှေအလေးချိန် ရလဒ်</label>
+                    <div id="uDisplay" class="main-ans">၀ ကျပ် ၀ ပဲ ၀ ရွေး</div>
+                    <div id="uSubDisplay" style="color:var(--text); font-size:1.1rem; margin-top:10px;">(0.0000 ကျပ်) | 0.000 g</div>
+                </div>
+                <button class="btn-reset" onclick="resetConverter()">RESET</button>
             </div>
 
             <div id="net-weight-view" class="hidden">
@@ -259,28 +319,42 @@
                     <div id="res-list"></div>
                 </div>
                 <button class="btn-main" style="background:#28a745; color:white;" onclick="saveAsPhoto()">📷 ပုံအဖြစ်သိမ်းမည်</button>
-                <button id="res-back-btn" class="btn-main" style="background:#444; color:white;">နောက်သို့</button>
+                <button id="res-back-btn" class="btn-main" style="background:#444; color:white;" onclick="showView('price-calc')">နောက်သို့</button>
             </div>
         </div>
     </div>
 
     <script>
-        const PURE_DENSITY = 19.25;
+        // Constants from User Requirement
+        const PURE_DENSITY = 19.25; // ၁၆ ပဲရည် (အခေါက်) density
 
         function toggleTheme() {
-            const body = document.body, icon = document.getElementById('theme-icon'), meta = document.getElementById('theme-meta');
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            const meta = document.getElementById('theme-meta');
             if (body.getAttribute('data-theme') === 'dark') {
-                body.setAttribute('data-theme', 'light'); icon.innerText = "☀️"; meta.setAttribute('content', '#ffffff'); localStorage.setItem('theme', 'light');
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = "☀️";
+                meta.setAttribute('content', '#ffffff');
+                localStorage.setItem('theme', 'light');
             } else {
-                body.setAttribute('data-theme', 'dark'); icon.innerText = "🌙"; meta.setAttribute('content', '#fcc103'); localStorage.setItem('theme', 'dark');
+                body.setAttribute('data-theme', 'dark');
+                icon.innerText = "🌙";
+                meta.setAttribute('content', '#fcc103');
+                localStorage.setItem('theme', 'dark');
             }
         }
+
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', () => { if(input.id) localStorage.setItem(input.id, input.value); });
+        });
 
         window.onload = () => {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.body.setAttribute('data-theme', savedTheme);
             document.getElementById('theme-icon').innerText = (savedTheme === 'dark') ? "🌙" : "☀️";
-            document.querySelectorAll('input, select').forEach(input => {
+            inputs.forEach(input => {
                 const savedValue = localStorage.getItem(input.id);
                 if (savedValue && input.id) input.value = savedValue;
             });
@@ -293,12 +367,28 @@
 
         function showView(view) {
             ['price-calc-view', 'diamond-calc-view', 'unit-converter-view', 'net-weight-view', 'price-result-view', 'purity-calc-view'].forEach(v => {
-                const el = document.getElementById(v); if(el) el.classList.add('hidden');
+                const el = document.getElementById(v);
+                if(el) el.classList.add('hidden');
             });
             document.getElementById(view + '-view').classList.remove('hidden');
-            document.getElementById('nav-title').innerText = (view === 'diamond-calc') ? "DIAMOND CALCULATOR" : "SHWE CALCULATOR PRO";
-            document.getElementById('nav-title').style.color = (view === 'diamond-calc') ? "var(--diamond)" : "var(--gold)";
-            closeNav(); window.scrollTo(0,0);
+            const title = document.getElementById('nav-title');
+            if(view === 'diamond-calc') {
+                title.innerText = "DIAMOND CALCULATOR";
+                title.style.color = "var(--diamond)";
+            } else {
+                title.innerText = "SHWE CALCULATOR PRO";
+                title.style.color = "var(--gold)";
+            }
+            closeNav();
+            window.scrollTo(0,0);
+        }
+
+        function switchPurityTab(type) {
+            document.getElementById('tab-purity').classList.toggle('active', type === 'purity');
+            document.getElementById('tab-yield').classList.toggle('active', type === 'yield');
+            document.getElementById('purity-sub-view').classList.toggle('hidden', type !== 'purity');
+            document.getElementById('yield-sub-view').classList.toggle('hidden', type !== 'yield');
+            document.getElementById('purity-result').classList.add('hidden');
         }
 
         function toDecimal(k, p, y) { return (parseFloat(k)||0) + ((parseFloat(p)||0)/16) + ((parseFloat(y)||0)/128); }
@@ -313,91 +403,113 @@
             return `${k} ကျပ် ${p} ပဲ ${y} ရွေး`;
         }
 
-        // --- NEW AUTO-CORRECTING CONVERSION LOGIC ---
-        function convertUnits(source) {
-            const factor = parseFloat(document.getElementById('standard').value);
-            let kyatDec = 0;
-
-            if (source === 'grams') {
-                const grams = parseFloat(document.getElementById('gramsInput').value) || 0;
-                kyatDec = grams / factor;
-                // Update UI parts from decimal
-                let k = Math.floor(kyatDec + 0.0000001);
-                let remPe = (kyatDec - k) * 16;
-                let p = Math.floor(remPe + 0.0000001);
-                let y = parseFloat(((remPe - p) * 8).toFixed(3));
-                document.getElementById('uKyat').value = k || "";
-                document.getElementById('uPe').value = p || "";
-                document.getElementById('uYway').value = y > 0 ? y : "";
-            } else {
-                let k = parseFloat(document.getElementById('uKyat').value) || 0;
-                let p = parseFloat(document.getElementById('uPe').value) || 0;
-                let y = parseFloat(document.getElementById('uYway').value) || 0;
-
-                // Auto-Correction Logic
-                if (y >= 8) { p += Math.floor(y / 8); y = parseFloat((y % 8).toFixed(3)); document.getElementById('uPe').value = p; document.getElementById('uYway').value = y || ""; }
-                if (p >= 16) { k += Math.floor(p / 16); p = p % 16; document.getElementById('uKyat').value = k; document.getElementById('uPe').value = p || ""; }
-
-                kyatDec = k + (p / 16) + (y / 128);
-                document.getElementById('gramsInput').value = (kyatDec * factor).toFixed(4);
-            }
-
-            document.getElementById('uDisplay').innerText = fromDecimal(kyatDec);
-            document.getElementById('uSubDisplay').innerText = `(${kyatDec.toFixed(4)} ကျပ်) | ${(kyatDec * factor).toFixed(3)} g`;
-        }
-
         function calcPurity() {
             let raw = toDecimal(document.getElementById('p1-k').value, document.getElementById('p1-p').value, document.getElementById('p1-y').value);
             let pure = toDecimal(document.getElementById('p2-k').value, document.getElementById('p2-p').value, document.getElementById('p2-y').value);
-            if(raw <= 0 || pure <= 0) return alert("အလေးချိန်ထည့်ပါ။");
+            if(raw <= 0 || pure <= 0) return alert("အလေးချိန်မှန်ကန်စွာထည့်ပါ။");
+            
             let peYee = (pure / raw) * 16;
+            let density = (pure / raw) * PURE_DENSITY; 
+
             document.getElementById('purity-result').classList.remove('hidden');
+            document.getElementById('p-res-label').innerText = "တွက်ချက်ရရှိသော ရွှေအရည်အသွေး";
             document.getElementById('p-res-val').innerText = `${peYee.toFixed(2)} ပဲရည်`;
-            document.getElementById('p-res-detail').innerText = `Density (စက်ပွိုင့်): ${((pure/raw)*PURE_DENSITY).toFixed(2)}`;
+            document.getElementById('p-res-detail').innerText = `Density (စက်ပွိုင့်): ${density.toFixed(2)}`;
+        }
+
+        function calcYield() {
+            let raw = toDecimal(document.getElementById('y1-k').value, document.getElementById('y1-p').value, document.getElementById('y1-y').value);
+            let den = parseFloat(document.getElementById('y-den').value);
+            let pe = parseFloat(document.getElementById('y-pe').value);
+            let resultKyat = 0;
+            
+            if(den > 0) resultKyat = (den / PURE_DENSITY) * raw; 
+            else if(pe > 0) resultKyat = (pe / 16) * raw;
+            else return alert("Density (သို့မဟုတ်) ပဲရည် တစ်ခုခုထည့်ပါ။");
+            
+            document.getElementById('purity-result').classList.remove('hidden');
+            document.getElementById('p-res-label').innerText = "ပြန်ရမည့် အခေါက်ရွှေပမာဏ";
+            document.getElementById('p-res-val').innerText = fromDecimal(resultKyat);
+            document.getElementById('p-res-detail').innerText = `စုစုပေါင်းဒသမကိန်း: ${resultKyat.toFixed(6)} ကျပ်`;
         }
 
         function updateEquivPrice() {
-            const price = parseFloat(document.getElementById('DiamondPrice').value) || 0, type = document.getElementById('DiamondPriceType').value;
+            const price = parseFloat(document.getElementById('DiamondPrice').value) || 0;
+            const type = document.getElementById('DiamondPriceType').value;
             const display = document.getElementById('equivPriceDisplay');
             if (price === 0) { display.innerText = ""; return; }
-            display.innerText = (type === 'carat') ? `≈ ${Math.round(price / 1.1).toLocaleString()} ကျပ် (၁ ရတီလျှင်)` : `≈ ${Math.round(price * 1.1).toLocaleString()} ကျပ် (၁ ကာရက်လျှင်)`;
+            if (type === 'carat') display.innerText = `≈ ${Math.round(price / 1.1).toLocaleString()} ကျပ် (၁ ရတီလျှင်)`;
+            else display.innerText = `≈ ${Math.round(price * 1.1).toLocaleString()} ကျပ် (၁ ကာရက်လျှင်)`;
         }
 
         function syncDiamondUnits(mode) {
             let dr = document.getElementById('DR'), db = document.getElementById('DB'), dp = document.getElementById('DP'), dct = document.getElementById('DCt');
             if (mode === 'ct') {
-                const totalR = (parseFloat(dct.value) || 0) * 1.1;
-                let r = Math.floor(totalR + 0.00001), remB = (totalR - r) * 20, b = Math.floor(remB + 0.00001), p = parseFloat(((remB - b) * 8).toFixed(2));
+                const ct = parseFloat(dct.value) || 0;
+                const totalRatti = ct * 1.1;
+                const r = Math.floor(totalRatti + 0.00001);
+                const remB = (totalRatti - r) * 20;
+                const b = Math.floor(remB + 0.00001);
+                const p = parseFloat(((remB - b) * 8).toFixed(2));
                 dr.value = r || ""; db.value = b || ""; dp.value = p > 0 ? p : "";
             } else {
                 let r = parseFloat(dr.value) || 0, b = parseFloat(db.value) || 0, p = parseFloat(dp.value) || 0;
                 if (p >= 8) { b += Math.floor(p / 8); p = parseFloat((p % 8).toFixed(2)); db.value = b; dp.value = p > 0 ? p : ""; }
                 if (b >= 20) { r += Math.floor(b / 20); b = b % 20; dr.value = r; db.value = b > 0 ? b : ""; }
-                dct.value = ((r + (b / 20) + (p / 160)) / 1.1).toFixed(4);
+                const totalRatti = r + (b / 20) + (p / 160);
+                dct.value = (totalRatti / 1.1).toFixed(4);
             }
         }
 
         function calculateDiamondPrice() {
-            const p = parseFloat(document.getElementById('DiamondPrice').value) || 0, ct = parseFloat(document.getElementById('DCt').value) || 0;
-            const type = document.getElementById('DiamondPriceType').value, r = parseFloat(document.getElementById('DR').value) || 0, b = parseFloat(document.getElementById('DB').value) || 0, pt = parseFloat(document.getElementById('DP').value) || 0;
-            let total = (type === 'carat') ? (ct * p) : ((r + (b/20) + (pt/160)) * p);
+            const price = parseFloat(document.getElementById('DiamondPrice').value) || 0;
+            const type = document.getElementById('DiamondPriceType').value;
+            const ct = parseFloat(document.getElementById('DCt').value) || 0;
+            const r = parseFloat(document.getElementById('DR').value) || 0;
+            const b = parseFloat(document.getElementById('DB').value) || 0;
+            const p = parseFloat(document.getElementById('DP').value) || 0;
+            const totalRatti = r + (b / 20) + (p / 160);
+            let total = (type === 'carat') ? (ct * price) : (totalRatti * price);
             document.getElementById('res-title').innerText = "စိန်/ရတနာ တွက်ချက်မှု";
             document.getElementById('res-title').style.color = "var(--diamond)";
             document.getElementById('res-back-btn').onclick = () => showView('diamond-calc');
-            document.getElementById('res-list').innerHTML = `<div class="res-row"><span>ဈေးနှုန်း</span><span>${p.toLocaleString()}</span></div><div class="res-row"><span>အလေးချိန်</span><span>${ct} Ct (${r}R ${b}B ${pt}P)</span></div><div class="res-row total-row" style="color:var(--diamond); background:rgba(185,242,255,0.1);"><span>${Math.round(total).toLocaleString()} ကျပ်</span></div>`;
+            document.getElementById('res-list').innerHTML = `
+                <div class="res-row"><span>သတ်မှတ်ဈေး</span><span style="color:var(--diamond)">${price.toLocaleString()}</span></div>
+                <div class="res-row"><span>အလေးချိန် (Ct)</span><span>${ct} Carat</span></div>
+                <div class="res-row"><span>အလေးချိန် (R)</span><span>${r}R ${b}B ${p}P</span></div>
+                <div class="res-row total-row" style="color:var(--diamond); background:rgba(185,242,255,0.1); border-color:var(--diamond);">
+                    <span>${Math.round(total).toLocaleString()} ကျပ်</span>
+                </div>
+            `;
             showView('price-result');
         }
 
         function calculatePrice() {
-            const price = parseFloat(document.getElementById('GoldPrice').value) || 0;
-            const goldK = toDecimal(document.getElementById('PKat').value, document.getElementById('PPe').value, document.getElementById('PYway').value);
-            const redK = toDecimal(document.getElementById('RKat').value, document.getElementById('RPae').value, document.getElementById('RYway').value);
-            const smith = parseFloat(document.getElementById('Smith').value) || 0, stone = parseFloat(document.getElementById('StonePrice').value) || 0;
-            const total = ((goldK + redK) * price) + smith + stone;
+            const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+            const price = getVal('GoldPrice');
+            const pk = getVal('PKat'), pp = getVal('PPe'), py = getVal('PYway');
+            const rk = getVal('RKat'), rp = getVal('RPae'), ry = getVal('RYway');
+            const goldKyat = toDecimal(pk, pp, py);
+            const redKyat = toDecimal(rk, rp, ry);
+            const smith = getVal('Smith'), stone = getVal('StonePrice');
+            const total = (goldKyat * price) + (redKyat * price) + smith + stone;
+
             document.getElementById('res-title').innerText = "ရွှေတွက်ချက်မှုမှတ်တမ်း";
             document.getElementById('res-title').style.color = "var(--gold)";
             document.getElementById('res-back-btn').onclick = () => showView('price-calc');
-            document.getElementById('res-list').innerHTML = `<div class="res-row"><span>ရွှေဈေး</span><span>${price.toLocaleString()}</span></div><div class="res-row"><span>အသားတင်+လျော့</span><span>${fromDecimal(goldK + redK)}</span></div><div class="res-row"><span>လက်ခ+ကျောက်</span><span>${(smith+stone).toLocaleString()}</span></div><div class="res-row total-row"><span>${Math.round(total).toLocaleString()} ကျပ်</span></div>`;
+            document.getElementById('res-list').innerHTML = `
+                <div class="res-row"><span>ယနေ့ရွှေဈေး</span><span class="val-highlight">${price.toLocaleString()} ကျပ်</span></div>
+                <div class="res-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;"><span>ရွှေဖိုး</span><span class="val-highlight">${Math.round(goldKyat * price).toLocaleString()}</span></div>
+                    <span style="font-size: 0.9rem; color: var(--label-text);">(အလေးချိန်: ${pk}K ${pp}P ${py}Y)</span>
+                </div>
+                <div class="res-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;"><span>လျော့တွက်ဖိုး</span><span class="val-highlight">${Math.round(redKyat * price).toLocaleString()}</span></div>
+                    <span style="font-size: 0.9rem; color: var(--label-text);">(အလေးချိန်: ${rk}K ${rp}P ${ry}Y)</span>
+                </div>
+                <div class="res-row"><span>လက်ခ + ကျောက်</span><span>${(smith + stone).toLocaleString()}</span></div>
+                <div class="res-row total-row"><span>စုစုပေါင်း - ${Math.round(total).toLocaleString()} ကျပ်</span></div>
+            `;
             showView('price-result');
         }
 
@@ -409,11 +521,62 @@
             document.getElementById('netSubDisplay').innerText = `(${netDec.toFixed(4)} ကျပ်)`;
         }
 
-        function resetAllData() { if (confirm("ဒေတာအားလုံးကို ဖျက်ပစ်ရန် သေချာပါသလား?")) { localStorage.clear(); location.reload(); } }
-        function resetCalculator() { document.querySelectorAll('#price-calc-view input').forEach(i => i.value = ""); }
-        function resetDiamond() { document.querySelectorAll('#diamond-calc-view input').forEach(i => i.value = ""); updateEquivPrice(); }
-        function resetConverter() { document.querySelectorAll('#unit-converter-view input').forEach(i => i.value = ""); document.getElementById('uDisplay').innerText="၀ ကျပ် ၀ ပဲ ၀ ရွေး"; }
-        function resetNetWeight() { document.querySelectorAll('#net-weight-view input').forEach(i => i.value = ""); calculateNetWeight(); }
+        function convertUnits(source) {
+            const factor = parseFloat(document.getElementById('standard').value);
+            let uk = document.getElementById('uKyat'), up = document.getElementById('uPe'), uy = document.getElementById('uYway');
+            
+            let kyatDec;
+            if (source === 'grams') {
+                kyatDec = (parseFloat(document.getElementById('gramsInput').value) || 0) / factor;
+                // Update unit fields based on grams
+                let parts = fromDecimal(kyatDec).match(/\d+(\.\d+)?/g);
+                uk.value = parts[0]; up.value = parts[1]; uy.value = parts[2];
+            } else {
+                // Auto-correction for units
+                let k = parseFloat(uk.value) || 0, p = parseFloat(up.value) || 0, y = parseFloat(uy.value) || 0;
+                if (y >= 8) { p += Math.floor(y / 8); y = parseFloat((y % 8).toFixed(2)); up.value = p; uy.value = y > 0 ? y : ""; }
+                if (p >= 16) { k += Math.floor(p / 16); p = p % 16; uk.value = k; up.value = p > 0 ? p : ""; }
+                
+                kyatDec = toDecimal(k, p, y);
+                document.getElementById('gramsInput').value = (kyatDec * factor).toFixed(3);
+            }
+
+            document.getElementById('uDisplay').innerText = fromDecimal(kyatDec);
+            document.getElementById('uSubDisplay').innerText = `(${kyatDec.toFixed(4)} ကျပ်) | ${(kyatDec * factor).toFixed(3)} g`;
+        }
+
+        function convertDiamondUnits(mode) {
+            if(mode === 'ct') {
+                const ct = parseFloat(document.getElementById('convCt').value) || 0;
+                document.getElementById('convGm').value = (ct * 0.2).toFixed(4);
+            } else {
+                const gm = parseFloat(document.getElementById('convGm').value) || 0;
+                document.getElementById('convCt').value = (gm / 0.2).toFixed(4);
+            }
+        }
+
+        function resetAllData() {
+            if (confirm("ဒေတာအားလုံးကို ဖျက်ပစ်ရန် သေချာပါသလား?")) {
+                document.querySelectorAll('input').forEach(i => i.value = "");
+                localStorage.clear();
+                if(document.getElementById('uDisplay')) document.getElementById('uDisplay').innerText = "၀ ကျပ် ၀ ပဲ ၀ ရွေး";
+                if(document.getElementById('uSubDisplay')) document.getElementById('uSubDisplay').innerText = "(0.0000 ကျပ်) | 0.000 g";
+                if(document.getElementById('netDisplay')) document.getElementById('netDisplay').innerText = "၀ ကျပ် ၀ ပဲ ၀ ရွေး";
+                if(document.getElementById('netSubDisplay')) document.getElementById('netSubDisplay').innerText = "(0.0000 ကျပ်)";
+                if(document.getElementById('purity-result')) document.getElementById('purity-result').classList.add('hidden');
+                updateEquivPrice();
+                closeNav();
+                alert("ဒေတာအားလုံးကို ဖျက်ပြီးပါပြီ။");
+            }
+        }
+
+        function resetCalculator() { document.querySelectorAll('#price-calc-view input').forEach(i => { i.value = ""; localStorage.removeItem(i.id); }); }
+        function resetDiamond() { document.querySelectorAll('#diamond-calc-view input').forEach(i => { i.value = ""; localStorage.removeItem(i.id); }); updateEquivPrice(); }
+        function resetConverter() { document.querySelectorAll('#unit-converter-view input').forEach(i => { i.value = ""; localStorage.removeItem(i.id); }); document.getElementById('uDisplay').innerText="၀ ကျပ် ၀ ပဲ ၀ ရွေး"; }
+        function resetNetWeight() { ['TKat','TPe','TYway','SKat','SPe','SYway'].forEach(id => { document.getElementById(id).value = ""; localStorage.removeItem(id); }); calculateNetWeight(); }
+        
+        document.getElementById('gramsInput').addEventListener('input', () => convertUnits('grams'));
+        ['uKyat', 'uPe', 'uYway'].forEach(id => document.getElementById(id).addEventListener('input', () => convertUnits('units')));
         
         function saveAsPhoto() {
             html2canvas(document.getElementById("capture-area"), { backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--card'), scale: 2 }).then(canvas => {
