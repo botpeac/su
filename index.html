@@ -103,6 +103,9 @@
         .theme-toggle { font-size: 1.5rem; cursor: pointer; color: var(--gold); padding: 5px 10px; border-radius: 8px; background: var(--input-bg); }
         
         .btn-master-reset { color: #ff4444 !important; font-weight: bold; border-top: 2px solid var(--border); margin-top: 20px; }
+
+        .ref-box { border: 1px dashed var(--gold); padding: 15px; border-radius: 10px; margin-bottom: 20px; background: rgba(252, 193, 3, 0.05); }
+        .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; font-size: 0.95rem; }
     </style>
 </head>
 <body data-theme="dark">
@@ -160,6 +163,15 @@
 
             <div id="purity-calc-view" class="hidden">
                 <h2>အခေါက်ချွတ်တွက်စက်</h2>
+                
+                <div class="ref-box">
+                    <div style="font-weight: bold; color: var(--gold); text-align: center; margin-bottom: 8px;">Density သတ်မှတ်ချက်</div>
+                    <div class="ref-grid">
+                        <div style="border-right: 1px solid var(--border);">၁၆ ပဲရည် (အခေါက်) <br> <b style="color:var(--gold)">19.25</b></div>
+                        <div>၁၅ ပဲရည် <br> <b style="color:var(--gold)">17.80</b></div>
+                    </div>
+                </div>
+
                 <div class="tab-container">
                     <button id="tab-purity" class="tab active" onclick="switchPurityTab('purity')">အရည်အသွေးတွက်</button>
                     <button id="tab-yield" class="tab" onclick="switchPurityTab('yield')">အသားတင်ထွက်နှုန်း</button>
@@ -196,10 +208,10 @@
                     </div>
                     <div class="card">
                         <label>Density (စက်ပွိုင့်)</label>
-                        <input type="number" id="y-den" placeholder="ဥပမာ- 17.51" step="0.01" style="margin-bottom:15px;">
+                        <input type="number" id="y-den" placeholder="ဥပမာ- 17.8" step="0.01" style="margin-bottom:15px;">
                         <p style="text-align: center; margin: 10px 0; font-weight:bold;">- (သို့မဟုတ်) -</p>
                         <label>ပဲရည် သိလျှင်ရိုက်ထည့်ပါ</label>
-                        <input type="number" id="y-pe" placeholder="ဥပမာ- 14.5">
+                        <input type="number" id="y-pe" placeholder="ဥပမာ- 15">
                     </div>
                     <button class="btn-main" onclick="calcYield()">ထွက်နှုန်းတွက်မည်</button>
                 </div>
@@ -313,6 +325,9 @@
     </div>
 
     <script>
+        // Constants from User Requirement
+        const PURE_DENSITY = 19.25; // ၁၆ ပဲရည် (အခေါက်) density
+
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
@@ -388,26 +403,32 @@
             return `${k} ကျပ် ${p} ပဲ ${y} ရွေး`;
         }
 
+        // Updated Purity Calculation using 19.25
         function calcPurity() {
             let raw = toDecimal(document.getElementById('p1-k').value, document.getElementById('p1-p').value, document.getElementById('p1-y').value);
             let pure = toDecimal(document.getElementById('p2-k').value, document.getElementById('p2-p').value, document.getElementById('p2-y').value);
             if(raw <= 0 || pure <= 0) return alert("အလေးချိန်မှန်ကန်စွာထည့်ပါ။");
+            
             let peYee = (pure / raw) * 16;
-            let density = (pure / raw) * 19.32;
+            let density = (pure / raw) * PURE_DENSITY; // Changed to 19.25
+
             document.getElementById('purity-result').classList.remove('hidden');
             document.getElementById('p-res-label').innerText = "တွက်ချက်ရရှိသော ရွှေအရည်အသွေး";
             document.getElementById('p-res-val').innerText = `${peYee.toFixed(2)} ပဲရည်`;
             document.getElementById('p-res-detail').innerText = `Density (စက်ပွိုင့်): ${density.toFixed(2)}`;
         }
 
+        // Updated Yield Calculation using 19.25
         function calcYield() {
             let raw = toDecimal(document.getElementById('y1-k').value, document.getElementById('y1-p').value, document.getElementById('y1-y').value);
             let den = parseFloat(document.getElementById('y-den').value);
             let pe = parseFloat(document.getElementById('y-pe').value);
             let resultKyat = 0;
-            if(den > 0) resultKyat = (den / 19.32) * raw;
+            
+            if(den > 0) resultKyat = (den / PURE_DENSITY) * raw; // Changed to 19.25
             else if(pe > 0) resultKyat = (pe / 16) * raw;
             else return alert("Density (သို့မဟုတ်) ပဲရည် တစ်ခုခုထည့်ပါ။");
+            
             document.getElementById('purity-result').classList.remove('hidden');
             document.getElementById('p-res-label').innerText = "ပြန်ရမည့် အခေါက်ရွှေပမာဏ";
             document.getElementById('p-res-val').innerText = fromDecimal(resultKyat);
@@ -523,21 +544,15 @@
             }
         }
 
-        // --- RESET FUNCTIONS ---
-
-        // Added Master Reset function
         function resetAllData() {
             if (confirm("ဒေတာအားလုံးကို ဖျက်ပစ်ရန် သေချာပါသလား?")) {
                 document.querySelectorAll('input').forEach(i => i.value = "");
                 localStorage.clear();
-                
-                // Clear UI labels
                 if(document.getElementById('uDisplay')) document.getElementById('uDisplay').innerText = "၀ ကျပ် ၀ ပဲ ၀ ရွေး";
                 if(document.getElementById('uSubDisplay')) document.getElementById('uSubDisplay').innerText = "(0.0000 ကျပ်) | 0.000 g";
                 if(document.getElementById('netDisplay')) document.getElementById('netDisplay').innerText = "၀ ကျပ် ၀ ပဲ ၀ ရွေး";
                 if(document.getElementById('netSubDisplay')) document.getElementById('netSubDisplay').innerText = "(0.0000 ကျပ်)";
                 if(document.getElementById('purity-result')) document.getElementById('purity-result').classList.add('hidden');
-                
                 updateEquivPrice();
                 closeNav();
                 alert("ဒေတာအားလုံးကို ဖျက်ပြီးပါပြီ။");
